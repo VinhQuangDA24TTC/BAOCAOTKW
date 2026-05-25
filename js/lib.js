@@ -194,13 +194,11 @@ function addproduct(id, name, price, image, hyperlink) {
     const card = document.createElement("div");
     card.className = "card h-100 position-relative shadow-sm";
 
-    
     // Ảnh
     const productImage = document.createElement("div");
     productImage.className = "ratio ratio-1x1";
 
     const img = document.createElement("img");
-
     img.src = image;
     img.alt = name;
     img.className = "img-fluid object-fit-cover";
@@ -213,48 +211,40 @@ function addproduct(id, name, price, image, hyperlink) {
 
     // Tên
     const productName = document.createElement("p");
-
     productName.innerHTML = name;
     productName.className = "fw-bold";
 
     // Giá mới
     const productPrice = document.createElement("p");
-
     productPrice.innerHTML = price;
     productPrice.className = "text-danger fw-bold mb-1";
 
     // Giá cũ
     const oldPrice = document.createElement("p");
-
     oldPrice.innerHTML = product.oldPrice || "";
-    oldPrice.className =
-        "text-secondary text-decoration-line-through small";
+    oldPrice.className = "text-secondary text-decoration-line-through small";
 
     // Nút
     const btnGroup = document.createElement("div");
-
     btnGroup.className = "mt-auto";
 
     const productLink = document.createElement("a");
-
     productLink.innerHTML = "Chi tiết";
     productLink.href = hyperlink + "?id=" + id;
     productLink.className = "btn btn-info btn-sm";
 
     const cartButton = document.createElement("button");
-
     cartButton.innerHTML = "Thêm";
     cartButton.className = "btn btn-success btn-sm ms-2";
 
     cartButton.onclick = function () {
-
         addToCart(id);
     };
 
     btnGroup.appendChild(productLink);
     btnGroup.appendChild(cartButton);
 
-    // Append
+    // Append các thành phần theo đúng cấu trúc của cô
     cardBody.appendChild(productName);
     cardBody.appendChild(productPrice);
     cardBody.appendChild(oldPrice);
@@ -265,8 +255,20 @@ function addproduct(id, name, price, image, hyperlink) {
 
     productItem.appendChild(card);
 
-    document.getElementById("product-list")
-        .appendChild(productItem);
+    document.getElementById("product-list").appendChild(productItem);
+}
 
+// BỔ SUNG HÀM ĐỂ NÚT "THÊM" HOẠT ĐỘNG (Đúng phong cách lưu trữ dữ liệu của cô)
+function addToCart(id) {
+    const product = productlist.find(item => item.id == id);
+    if (product) {
+        let cart = JSON.parse(localStorage.getItem("lumix_cart")) || [];
+        cart.push(product);
+        localStorage.setItem("lumix_cart", JSON.stringify(cart));
+        
+        // Cập nhật lại giao diện giỏ hàng ở bên phải trang chủ
+        if (typeof renderCart === "function") {
+            renderCart();
         }
-    
+    }
+}
