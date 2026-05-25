@@ -224,7 +224,7 @@ function addproduct(id, name, price, image, hyperlink) {
     oldPrice.innerHTML = product.oldPrice || "";
     oldPrice.className = "text-secondary text-decoration-line-through small";
 
-    // Nút
+    // Nút điều hướng nhóm
     const btnGroup = document.createElement("div");
     btnGroup.className = "mt-auto";
 
@@ -236,10 +236,9 @@ function addproduct(id, name, price, image, hyperlink) {
     const cartButton = document.createElement("button");
     cartButton.innerHTML = "Thêm";
     cartButton.className = "btn btn-success btn-sm ms-2";
-
-    cartButton.onclick = function () {
-        addToCart(id);
-    };
+    
+    // THAY ĐỔI QUAN TRỌNG: Gán sự kiện trực tiếp bằng chuỗi thuộc tính để loại bỏ lỗi Scope trình duyệt
+    cartButton.setAttribute("onclick", `addToCart(${id})`);
 
     btnGroup.appendChild(productLink);
     btnGroup.appendChild(cartButton);
@@ -258,7 +257,7 @@ function addproduct(id, name, price, image, hyperlink) {
     document.getElementById("product-list").appendChild(productItem);
 }
 
-// BỔ SUNG HÀM ĐỂ NÚT "THÊM" HOẠT ĐỘNG (Đúng phong cách lưu trữ dữ liệu của cô)
+// HÀM LƯU DỮ LIỆU GIỎ HÀNG
 function addToCart(id) {
     const product = productlist.find(item => item.id == id);
     if (product) {
@@ -266,7 +265,7 @@ function addToCart(id) {
         cart.push(product);
         localStorage.setItem("lumix_cart", JSON.stringify(cart));
         
-        // Cập nhật lại giao diện giỏ hàng ở bên phải trang chủ
+        // Cập nhật lại giao diện giỏ hàng thời gian thực ở trang chủ
         if (typeof renderCart === "function") {
             renderCart();
         }
