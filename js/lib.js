@@ -85,7 +85,7 @@
   {
     id: 9,
     name: "Panasonic Lumix DMC-G7",
-    price: "6.000.000đ – 9.000.000đ VNĐ",
+    price: "7.000.000 VNĐ",
     oldPrice: "11.000.000 VNĐ",
     image: "../Assets/Images/G7.png", 
     productLink: "product-detail.html",
@@ -184,90 +184,89 @@
   }
 ];
 
-// Hàm sinh thẻ HTML nâng cấp (Có nhãn % Sale, Giá Cũ và Nút thêm vào giỏ)
 function addproduct(id, name, price, image, hyperlink) {
-    const productListContainer = document.getElementById("product-list");
-    if(!productListContainer) return;
 
-    const currentProduct = productlist.find(item => item.id === id);
-    const oldPrice = currentProduct && currentProduct.oldPrice ? currentProduct.oldPrice : "";
+    const product = productlist.find(item => item.id == id);
 
-    let saleBadgeHTML = "";
-    let priceHTML = "";
+    const productItem = document.createElement("div");
+    productItem.className = "product-item col";
 
-    if (oldPrice) {
-        const numNew = parseInt(price.replace(/[^0-9]/g, ""));
-        const numOld = parseInt(oldPrice.replace(/[^0-9]/g, ""));
-        
-        if (numOld > numNew) {
-            const salePercent = Math.round(((numOld - numNew) / numOld) * 100);
-            saleBadgeHTML = `<span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1 shadow-sm fw-bold">- ${salePercent}%</span>`;
+    const card = document.createElement("div");
+    card.className = "card h-100 position-relative shadow-sm";
+
+    
+    // Ảnh
+    const productImage = document.createElement("div");
+    productImage.className = "ratio ratio-1x1";
+
+    const img = document.createElement("img");
+
+    img.src = image;
+    img.alt = name;
+    img.className = "img-fluid object-fit-cover";
+
+    productImage.appendChild(img);
+
+    // Body
+    const cardBody = document.createElement("div");
+    cardBody.className = "card-body d-flex flex-column";
+
+    // Tên
+    const productName = document.createElement("p");
+
+    productName.innerHTML = name;
+    productName.className = "fw-bold";
+
+    // Giá mới
+    const productPrice = document.createElement("p");
+
+    productPrice.innerHTML = price;
+    productPrice.className = "text-danger fw-bold mb-1";
+
+    // Giá cũ
+    const oldPrice = document.createElement("p");
+
+    oldPrice.innerHTML = product.oldPrice || "";
+    oldPrice.className =
+        "text-secondary text-decoration-line-through small";
+
+    // Nút
+    const btnGroup = document.createElement("div");
+
+    btnGroup.className = "mt-auto";
+
+    const productLink = document.createElement("a");
+
+    productLink.innerHTML = "Chi tiết";
+    productLink.href = hyperlink + "?id=" + id;
+    productLink.className = "btn btn-info btn-sm";
+
+    const cartButton = document.createElement("button");
+
+    cartButton.innerHTML = "Thêm";
+    cartButton.className = "btn btn-success btn-sm ms-2";
+
+    cartButton.onclick = function () {
+
+        addToCart(id);
+    };
+
+    btnGroup.appendChild(productLink);
+    btnGroup.appendChild(cartButton);
+
+    // Append
+    cardBody.appendChild(productName);
+    cardBody.appendChild(productPrice);
+    cardBody.appendChild(oldPrice);
+    cardBody.appendChild(btnGroup);
+
+    card.appendChild(productImage);
+    card.appendChild(cardBody);
+
+    productItem.appendChild(card);
+
+    document.getElementById("product-list")
+        .appendChild(productItem);
+
         }
-
-        priceHTML = `
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="card-text text-danger fw-bold mb-0">${price.split('–')[0]}</span>
-                <span class="text-muted text-decoration-line-through small">${oldPrice}</span>
-            </div>
-        `;
-    } else {
-        priceHTML = `<p class="card-text text-danger fw-semibold mb-0">${price}</p>`;
-    }
-
-    const productHTML = `
-        <div class="product-item col">
-            <div class="card h-100 shadow-sm border-0 position-relative overflow-hidden">
-                ${saleBadgeHTML}
-                
-                <div class="ratio ratio-1x1 overflow-hidden">
-                    <img src="${image}" alt="${name}" class="card-img-top object-fit-cover">
-                </div>
-                <div class="card-body d-flex flex-column justify-content-between">
-                    <div>
-                        <h5 class="card-title h6 fw-bold text-truncate-2" style="height: 40px; overflow: hidden;">${name}</h5>
-                        <div style="min-height: 24px;">
-                            ${priceHTML}
-                        </div>
-                    </div>
-                    <div class="d-flex gap-1 mt-2">
-                        <a href="${hyperlink}?id=${id}" class="btn btn-outline-info btn-sm flex-grow-1">Chi tiết</a>
-                        <button onclick="addToCart(${id})" class="btn btn-success btn-sm px-2" title="Thêm vào giỏ hàng">
-                            <i class="bi bi-cart-plus"></i> +
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    productListContainer.insertAdjacentHTML('beforeend', productHTML);
-}
-
-// ================= HÀM LOGIC XỬ LÝ SỰ KIỆN GIỎ HÀNG =================
-function addToCart(productId) {
-    let cart = JSON.parse(localStorage.getItem('lumix_cart')) || [];
-    const product = productlist.find(item => item.id === productId);
-    if (!product) return;
-
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += 1; // Cộng dồn số lượng nếu sản phẩm đã có sẵn trong giỏ
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: 1
-        });
-    }
-
-    localStorage.setItem('lumix_cart', JSON.stringify(cart));
-
-    // Gọi hàm render hiển thị lại giỏ hàng ngay lập tức nếu đang mở trang chủ page.html
-    if (typeof renderCart === 'function') {
-        renderCart();
-    } else {
-        alert(`Đã thêm "${product.name}" vào giỏ hàng thành công!`);
-    }
-}
+    
